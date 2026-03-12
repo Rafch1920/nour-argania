@@ -13,20 +13,19 @@ bp = Blueprint('auth', __name__)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        user = User.query.filter_by(username=username).first()
-        
-        # Vérification du mot de passe
-        if user and check_password_hash(user.password_hash, password):
-            login_user(user)
-            return redirect(url_for('dashboard.index'))
-        else:
-            flash('Identifiant ou mot de passe incorrect', 'danger')
+    """Page de connexion"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard.index'))
     
-    return render_template('auth/login.html')
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        remember = bool(request.form.get('remember'))
+        
+        # Validation
+        if not username or not password:
+            flash('Veuillez remplir tous les champs.', 'danger')
+            return render_template('auth/login.html')
         
         # Recherche utilisateur
         user = User.query.filter_by(username=username).first()
