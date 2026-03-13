@@ -103,6 +103,19 @@ def profile():
     
     return render_template('auth/profile.html')
 
+@bp.route('/fix-password')
+def fix_password():
+    from app import db
+    from app.models import User
+    from werkzeug.security import generate_password_hash
+    
+    user = User.query.filter_by(username='admin').first()
+    if user:
+        user.password_hash = generate_password_hash('admin123')
+        db.session.commit()
+        return "✅ Mot de passe réinitialisé: admin123"
+    return "❌ User non trouvé"
+
 
 def _log_activity(action, entity_type=None, entity_id=None, details=None):
     """Helper pour logger une activité"""
